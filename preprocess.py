@@ -4,18 +4,22 @@ import pandas as pd
 from ast import literal_eval
 
 def kaggleProcess():
-    movies = pd.read_csv('movies_metadata.csv').drop_duplicates(subset=['imdb_id'])
-    samples = movies.sample(1500, random_state=42)[['overview', 'popularity', 'revenue', 'status', 'production_countries', 'release_date', 'imdb_id', 'original_language']]
-    samples.to_csv('movies.csv', index=False)
+    movies = pd.read_csv('data_kaggle/movies_metadata.csv').drop_duplicates(subset=['imdb_id'])
+    keywords = pd.read_csv('data_kaggle/keywords.csv').drop_duplicates(subset='id')
+    keywords['keywords'] = keywords['keywords'].map(lambda keyword: ', '.join([x['name'] for x in literal_eval(keyword)]))
+    samples = movies.sample(1500, random_state=42)[['id', 'overview', 'popularity', 'revenue', 'status', 'production_countries', 'release_date', 'imdb_id', 'original_language']]
+    samples['id'] = samples['id'].astype('int64')
+    samples = samples.merge(keywords, on='id')
+    samples.to_csv('cache/movies.csv', index=False)
 
 def apiProcess():
     """
     access api data and join the data with csv data
     """
     # open movie database api has a limit of 1000 requests/day/api key; for ease, just change the index here
-    sample = pd.read_csv('movies.csv')[1000:]
+    sample = pd.read_csv('cache/movies.csv')[1000:]
     # cache = {}   # initialization for the first request chunk
-    with open('cache.json') as file:
+    with open('cache/cache.json') as file:
         cache = json.load(file)
     for _, row in sample.iterrows():
         imdb_id = row['imdb_id']
@@ -33,11 +37,11 @@ def apiProcess():
         cache[imdb_id]['writer'] = result['Writer']
         cache[imdb_id]['actor'] = result['Actors']
         cache[imdb_id]['rating'] = result['imdbRating']
-    with open('cache.json', 'w') as file:
+    with open('cache/cache.json', 'w') as file:
         json.dump(cache, file)
 
 def eda():
-    with open('cache.json') as file:
+    with open('cache/cache.json') as file:
         cache = json.load(file)
     runtime = []
     rating = []
@@ -64,7 +68,7 @@ def process():
     """
     commonLanguage = ['en', 'fr', 'it', 'ja', 'de']  # top 5 languages from EDA
     languageMap = {'en': 'English', 'fr': 'French', 'it': 'Italian', 'ja': 'Japanese', 'de': 'German'}
-    with open('cache.json') as file:
+    with open('cache/cache.json') as file:
         cache = json.load(file)
     for key in cache:
         language = cache[key]['language']
@@ -100,7 +104,7 @@ def process():
             else:
                 cache[key]['runtime'] = '>= 105 min'
         cache[key]['production_countries'] = ' | '.join([x['name'] for x in literal_eval(cache[key]['production_countries'])])
-    with open('data.json', 'w') as file:
+    with open('cache/data.json', 'w') as file:
         json.dump(cache, file)
 
 def main():
