@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Movie Selection</title>
+    <style>
+      li > ul {
+        transform: translatex(100%) scale(0);
+      }
+      li:hover > ul {
+        transform: translatex(101%) scale(1);
+      }
+      li > button svg {
+        transform: rotate(-90deg);
+      }
+      li:hover > button svg {
+        transform: rotate(-270deg);
+      }
+      .min-w-32 {
+        min-width: 12rem; 
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex flex-col justify-center items-center w-full h-screen space-y-2">
+      <h1 class="text-2xl font-bold text-gray-800 py-2">Movie Selection</h1>
+      <div id="#dropdown" class="group inline-block text-gray-700">
+        <button
+          aria-haspopup="true"
+          aria-controls="menu"
+          class="outline-none focus:outline-none border px-3 py-1 bg-white rounded-sm flex items-center min-w-32"
+        >
+          <span class="pr-1 font-semibold flex-1">Select Tree Type</span>
+          <span>
+            <svg
+              class="fill-current h-4 w-4 transform group-hover:-rotate-180 transition duration-150 ease-in-out"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+              />
+            </svg>
+          </span>
+        </button>
+        <ul
+          id="menu"
+          aria-hidden="true"
+          class="bg-white border rounded-sm transform scale-0 group-hover:scale-100 absolute 
+          transition duration-150 ease-in-out origin-top min-w-32"
+        >
+          <li class="rounded-sm relative px-3 py-1 hover:bg-gray-100">
+            <button
+              aria-haspopup="true"
+              aria-controls="menu-lang"
+              class="w-full text-left flex items-center outline-none focus:outline-none"
+            >
+              <span class="pr-1 flex-1">Language</span>
+              <span class="mr-auto">
+                <svg
+                  class="fill-current h-4 w-4 transition duration-150 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <ul
+              id="menu-lang"
+              aria-hidden="true"
+              class="bg-white border rounded-sm absolute top-0 right-0 transition duration-150 ease-in-out origin-top-left min-w-32"
+            >
+              {% for l in language %}
+              <li data-value="language,{{l}}" class="px-3 py-1 hover:bg-gray-100">{{l}}</li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="rounded-sm relative px-3 py-1 hover:bg-gray-100">
+            <button
+              aria-haspopup="true"
+              aria-controls="menu-year"
+              class="w-full text-left flex items-center outline-none focus:outline-none"
+            >
+              <span class="pr-1 flex-1">Year of release</span>
+              <span class="mr-auto">
+                <svg
+                  class="fill-current h-4 w-4 transition duration-150 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <ul
+              id="menu-year"
+              aria-hidden="true"
+              class="bg-white border rounded-sm absolute top-0 right-0 transition duration-150 ease-in-out origin-top-left min-w-32"
+            >
+              {% for y in year %}
+              <li data-value="yearGroup,{{y}}" class="px-3 py-1 hover:bg-gray-100">{{y}}</li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="rounded-sm relative px-3 py-1 hover:bg-gray-100">
+            <button
+              aria-haspopup="true"
+              aria-controls="menu-rating"
+              class="w-full text-left flex items-center outline-none focus:outline-none"
+            >
+              <span class="pr-1 flex-1">Rating</span>
+              <span class="mr-auto">
+                <svg
+                  class="fill-current h-4 w-4 transition duration-150 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <ul
+              id="menu-rating"
+              aria-hidden="true"
+              class="bg-white border rounded-sm absolute top-0 right-0 transition duration-150 ease-in-out origin-top-left min-w-32"
+            >
+              {% for r in rating %}
+              <li data-value="ratingGroup,{{r}}" class="px-3 py-1 hover:bg-gray-100">{{r}}</li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="rounded-sm relative px-3 py-1 hover:bg-gray-100">
+            <button
+              aria-haspopup="true"
+              aria-controls="menu-runtime"
+              class="w-full text-left flex items-center outline-none focus:outline-none"
+            >
+              <span class="pr-1 flex-1">Runtime</span>
+              <span class="mr-auto">
+                <svg
+                  class="fill-current h-4 w-4 transition duration-150 ease-in-out"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <ul
+              id="menu-runtime"
+              aria-hidden="true"
+              class="bg-white border rounded-sm absolute top-0 right-0 transition duration-150 ease-in-out origin-top-left min-w-32"
+            >
+              {% for ru in runtime %}
+              <li data-value="runtimeGroup,{{ru}}" class="px-3 py-1 hover:bg-gray-100">{{ru}}</li>
+              {% endfor %}
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <script>
+      document.getElementById("#dropdown").addEventListener("click", event => {
+        const value = event.target.dataset.value;
+        if (value) {
+          fetch(`${window.origin}/`, {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(value),
+            cache: "no-cache",
+            headers: new Headers({
+              "content-type": "application/json"
+            })
+          }).then(() => {
+            window.location = `${window.origin}/tables`;
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

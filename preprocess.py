@@ -2,8 +2,12 @@ import json
 import requests
 import pandas as pd
 from ast import literal_eval
+from tree import treeGroups
 
 def kaggleProcess():
+    """
+    TODO: write comments
+    """
     movies = pd.read_csv('data_kaggle/movies_metadata.csv').drop_duplicates(subset=['imdb_id'])
     keywords = pd.read_csv('data_kaggle/keywords.csv').drop_duplicates(subset='id')
     keywords['keywords'] = keywords['keywords'].map(lambda keyword: ', '.join([x['name'] for x in literal_eval(keyword)]))
@@ -14,6 +18,7 @@ def kaggleProcess():
 
 def apiProcess():
     """
+    TODO: write more comments
     access api data and join the data with csv data
     """
     # open movie database api has a limit of 1000 requests/day/api key; for ease, just change the index here
@@ -41,6 +46,9 @@ def apiProcess():
         json.dump(cache, file)
 
 def eda():
+    """
+    TODO: write comments
+    """
     with open('cache/cache.json') as file:
         cache = json.load(file)
     runtime = []
@@ -64,6 +72,7 @@ def eda():
 
 def process():
     """
+    TODO: write more comments
     convert the raw cached data into processed data, e.g., label the data into year of release groups, rating groups and runtime groups
     """
     commonLanguage = ['en', 'fr', 'it', 'ja', 'de']  # top 5 languages from EDA
@@ -78,43 +87,67 @@ def process():
             cache[key]['language'] = languageMap[language]
         year = cache[key]['year'][:4]
         if int(year) < 1970:
-            cache[key]['year'] = 'Before 1970'
+            cache[key]['yearGroup'] = 'Before 1970'
         else:
-            cache[key]['year'] = '{} - {}'.format(int(year) // 10 * 10, int(year) // 10 * 10 + 9)
+            cache[key]['yearGroup'] = '{} - {}'.format(int(year) // 10 * 10, int(year) // 10 * 10 + 9)
         rating = cache[key]['rating']
         if rating == 'N/A':
-            cache[key]['rating'] = rating
+            cache[key]['ratingGroup'] = rating
         else:
             rating = float(rating)
             if rating < 5:
-                cache[key]['rating'] = '< 5.0'
+                cache[key]['ratingGroup'] = '< 5.0'
             else:
-                cache[key]['rating'] = '{} - {}'.format(int(rating), int(rating) + 0.9)
+                cache[key]['ratingGroup'] = '{} - {}'.format(int(rating), int(rating) + 0.9)
         runtime = cache[key]['runtime']
         if runtime == 'N/A':
-            cache[key]['runtime'] = runtime
+            cache[key]['runtimeGroup'] = runtime
         else:
             runtime = int(cache[key]['runtime'].split(' ')[0])
             if runtime < 85:
-                cache[key]['runtime'] = '< 85 min'
+                cache[key]['runtimeGroup'] = '< 85 min'
             elif runtime < 95:
-                cache[key]['runtime'] = '< 95 min'
+                cache[key]['runtimeGroup'] = '< 95 min'
             elif runtime < 105:
-                cache[key]['runtime'] = '< 105 min'
+                cache[key]['runtimeGroup'] = '< 105 min'
             else:
-                cache[key]['runtime'] = '>= 105 min'
+                cache[key]['runtimeGroup'] = '>= 105 min'
         cache[key]['production_countries'] = ' | '.join([x['name'] for x in literal_eval(cache[key]['production_countries'])])
     with open('cache/data.json', 'w') as file:
         json.dump(cache, file)
 
+def groupMovies():
+    """
+    TODO: write comments
+    """
+    with open('cache/data.json') as file:
+        cache = json.load(file)
+    for treeType, groups in treeGroups.items():
+        temp = {}
+        for group in groups:
+            temp[group] = []
+        for key in cache:
+            group = cache[key][treeType]
+            if len(temp[group]) == 50:
+                continue
+            temp[group].append(cache[key])
+        with open('cache/{}.json'.format(treeType), 'w') as file:
+            json.dump(temp, file)
+
 def main():
-    option = input("Input 1, 2, 3 to select whether you would like to process kaggle data, \nor the open movie database api data, \nor preprocess the data: ").strip()
+    option = input("Input 1, 2, 3, 4, 5 to select whether you would like to process kaggle data, \
+    \nor the open movie database api data, \nor see EDA result, \nor process the raw data, \
+    \nor group the movies: ").strip()
     if option == '2':
         apiProcess()
     elif option == '3':
-        # eda()
+        eda()
+    elif option == '4':
         process()
+    elif option == '5':
+        groupMovies()
     else:
         kaggleProcess()
 
-main()
+if __name__ == '__main__':
+    main()
