@@ -27,16 +27,15 @@ def tables():
     headers = ['Title', 'Language', 'Year', 'Rating', 'Runtime', 'Genre', 'Director', 'Writer', 
     'Actor', 'Popularity', 'Revenue', 'Status', 'Keywords', 'Overview', 'Production Countries']
     attributes = [h.lower() for h in headers[1:-1]] + ['production_countries']
-    treeFile = open('trees/{}.txt'.format(treeType), "r")
-    root = loadTree(treeFile)
-    treeFile.close()
-    cur = root
+
+    cur = loadTree('trees/{}.json'.format(treeType))
     while cur.left and cur.right:
         if group in cur.left.groups:
             cur = cur.left
         else:
             cur = cur.right
     movies = cur.movies
+    
     return render_template('tables.html', movies=movies, headers=headers, attributes=attributes)
 
 if __name__ == "__main__":

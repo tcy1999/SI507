@@ -2,7 +2,7 @@ import json
 
 class TreeNode():
   def __init__(self, groups=[], left=None, right=None, movies=[]):
-    self.groups = groups  # for leaf nodes, this attribute.length == 1
+    self.groups = groups  # for leaf nodes, len(groups) == 1
     self.left = left
     self.right = right
     self.movies = movies  # only leaf nodes have this attribute
@@ -15,8 +15,20 @@ treeGroups = {
 }
 
 def buildTree(treeType, groups):
-    """
-    TODO: write comments
+    """build a tree given the type of the tree
+    for each internal node, the groups are divided into two halves,
+    for each leaf node, the attribute movies contains the movies of a specific group
+
+    Parameters
+    ----------        
+    treeType: 
+        the type of a tree, possible values: ['language', 'yearGroup', 'ratingGroup', 'runtimeGroup']
+    groups:
+        the possible groups given the treeType, treeGroups[treeType]
+
+    Returns
+    -------
+    TreeNode
     """
     with open('cache/{}.json'.format(treeType)) as file:
         cache = json.load(file)
@@ -33,42 +45,89 @@ def buildTree(treeType, groups):
         return root
     return buildHelper(groups)
 
-def saveTree(root, treeFile):
+def serialize(cur):
+    """serialize a tree to a dictionary
+
+    Parameters
+    ----------        
+    cur: 
+        a TreeNode
+
+    Returns
+    -------
+    a dictionary representing the tree
     """
-    TODO: write comments
-    """
-    if root.left is None and root.right is None:
-        print("Leaf\n{}\n{}".format(','.join(root.groups), json.dumps(root.movies)), file=treeFile)
+    if cur.left is None and cur.right is None:
+        return {
+            'nodeType': 'leaf', 
+            'groups': cur.groups, 
+            'movies': cur.movies
+        }
     else:
-        print("Internal Node\n{}".format(','.join(root.groups)), file=treeFile)
-        saveTree(root.left, treeFile)
-        saveTree(root.right, treeFile)
+        return {
+            'nodeType': 'internal', 
+            'groups': cur.groups, 
+            'left': serialize(cur.left),
+            'right': serialize(cur.right)
+        }
+
+def saveTree(root, treeFile):
+    """save the tree to a file
+
+    Parameters
+    ----------        
+    root: 
+        the root node of a tree
+    treeFile:
+        filename of a file that will be open for writing
+
+    Returns
+    -------
+    None
+    """
+    treeDict = serialize(root)
+    with open(treeFile, 'w') as file:
+        json.dump(treeDict, file)
+
+def deserialize(treeDict):
+    """deserialize a tree from a dictionary
+
+    Parameters
+    ----------        
+    treeDict: 
+        a dictionary representing the tree
+
+    Returns
+    -------
+    TreeNode
+    """
+    if treeDict['nodeType'] == 'leaf':
+        return TreeNode(treeDict['groups'], None, None, treeDict['movies'])
+    else:
+        return TreeNode(treeDict['groups'], deserialize(treeDict['left']), deserialize(treeDict['right']))
 
 def loadTree(treeFile):
+    """load a tree from a given file
+
+    Parameters
+    ----------        
+    treeFile:
+        filename of a file that will be open for reading
+
+    Returns
+    -------
+    TreeNode
     """
-    TODO: write comments
-    """
-    line = treeFile.readline().strip()
-    groups = treeFile.readline().strip().split(',')
-    root = TreeNode(groups)
-    if line == 'Leaf':
-        root.movies = json.loads(treeFile.readline().strip())
-        return root
-    else:
-        root.left = loadTree(treeFile)
-        root.right = loadTree(treeFile)
-        return root
+    with open(treeFile) as file:
+        tree = json.load(file)
+    return deserialize(tree)
 
 def main():
     for treeType, groups in treeGroups.items():
         root = buildTree(treeType, groups)
-        treeFile = open('trees/{}.txt'.format(treeType), "w")
-        saveTree(root, treeFile)
-        treeFile.close()
+        saveTree(root, 'trees/{}.json'.format(treeType))
     # for treeType in treeGroups:
-    #     treeFile = open('trees/{}.txt'.format(treeType), "r")
-    #     print(loadTree(treeFile).groups)
-    #     treeFile.close()
+    #     print(loadTree('trees/{}.json'.format(treeType)).groups)
 
 if __name__ == '__main__':
     main()

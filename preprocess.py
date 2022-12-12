@@ -5,8 +5,15 @@ from ast import literal_eval
 from tree import treeGroups
 
 def kaggleProcess():
-    """
-    TODO: write comments
+    """randomly sample 1500 records, and merge the 2 csvs from the kaggle dataset
+
+    Parameters
+    ----------        
+    None
+
+    Returns
+    -------
+    None
     """
     movies = pd.read_csv('data_kaggle/movies_metadata.csv').drop_duplicates(subset=['imdb_id'])
     keywords = pd.read_csv('data_kaggle/keywords.csv').drop_duplicates(subset='id')
@@ -17,15 +24,24 @@ def kaggleProcess():
     samples.to_csv('cache/movies.csv', index=False)
 
 def apiProcess():
-    """
-    TODO: write more comments
-    access api data and join the data with csv data
+    """access api data, join the data with csv data, and cache the joined data
+
+    Parameters
+    ----------        
+    None
+
+    Returns
+    -------
+    None
     """
     # open movie database api has a limit of 1000 requests/day/api key; for ease, just change the index here
     sample = pd.read_csv('cache/movies.csv')[1000:]
-    # cache = {}   # initialization for the first request chunk
-    with open('cache/cache.json') as file:
-        cache = json.load(file)
+    key = '1dee52ff'
+    try:
+        with open('cache/cache.json') as file:
+            cache = json.load(file)
+    except:
+        cache = {}   # initialization for the first request chunk
     for _, row in sample.iterrows():
         imdb_id = row['imdb_id']
         cache[imdb_id] = {
@@ -33,7 +49,7 @@ def apiProcess():
             'status': row['status'], 'revenue': row['revenue'], 
             'production_countries': row['production_countries'], 'language': row['original_language']
         }
-        result = requests.get('http://www.omdbapi.com/?i={}&apikey=1dee52ff'.format(imdb_id)).json()
+        result = requests.get('http://www.omdbapi.com/?i={}&apikey={}'.format(imdb_id, key)).json()
         cache[imdb_id]['title'] = result['Title']
         cache[imdb_id]['year'] = result['Year']
         cache[imdb_id]['runtime'] = result['Runtime']
@@ -46,8 +62,15 @@ def apiProcess():
         json.dump(cache, file)
 
 def eda():
-    """
-    TODO: write comments
+    """Exploratory Data Analysis of the data, in order to create reasonable groups
+
+    Parameters
+    ----------        
+    None
+
+    Returns
+    -------
+    None
     """
     with open('cache/cache.json') as file:
         cache = json.load(file)
@@ -71,9 +94,16 @@ def eda():
     print(year.describe())
 
 def process():
-    """
-    TODO: write more comments
-    convert the raw cached data into processed data, e.g., label the data into year of release groups, rating groups and runtime groups
+    """convert the raw cached data into processed data, 
+    e.g., label the data into year of release groups, rating groups and runtime groups
+
+    Parameters
+    ----------        
+    None
+
+    Returns
+    -------
+    None
     """
     commonLanguage = ['en', 'fr', 'it', 'ja', 'de']  # top 5 languages from EDA
     languageMap = {'en': 'English', 'fr': 'French', 'it': 'Italian', 'ja': 'Japanese', 'de': 'German'}
@@ -117,8 +147,16 @@ def process():
         json.dump(cache, file)
 
 def groupMovies():
-    """
-    TODO: write comments
+    """based on the processed cache/data.json, group the data by different groups according to each tree type,
+    and save to cache/{treeType}.json
+
+    Parameters
+    ----------        
+    None
+
+    Returns
+    -------
+    None
     """
     with open('cache/data.json') as file:
         cache = json.load(file)
