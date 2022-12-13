@@ -173,8 +173,8 @@ def groupMovies():
             json.dump(temp, file)
 
 def main():
-    option = input("Input 1, 2, 3, 4, 5 to select whether you would like to process kaggle data, \
-    \nor the open movie database api data, \nor see EDA result, \nor process the raw data, \
+    option = input("Input 1, 2, 3, 4, 5 to select whether you would like to access kaggle data, \
+    \nor access the open movie database api data, \nor see EDA result, \nor process the raw data, \
     \nor group the movies: ").strip()
     if option == '2':
         apiProcess()
