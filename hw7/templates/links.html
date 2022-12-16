@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>HW7 Links Page</title>
+  </head>
+  <body>
+    <h1>Hello, {{name}}!</h1>
+    <h2>Today's technology headlines are...</h2>
+    <ol>
+      {% for title, url in articles %}
+        <h3>
+          <li><a href={{url}}>{{title}}</a></li>
+        </h3>
+      {% endfor %}
+    </ol>
+  </body>
+</html>

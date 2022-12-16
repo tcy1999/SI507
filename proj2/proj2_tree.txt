@@ -1,0 +1,14 @@
+Internal Node
+Is it bigger than a breadbox?
+Internal Node
+Does it have wheels?
+Leaf
+a car
+Internal Node
+Does it have tusks?
+Leaf
+an elephant
+Leaf
+a hippo
+Leaf
+a mouse
